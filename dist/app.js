@@ -5,9 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
 const express_1 = __importDefault(require("express"));
+const body_parser_1 = __importDefault(require("body-parser"));
 const index_1 = require("./controller/index");
 const user_1 = require("./controller/user");
 exports.app = (0, express_1.default)();
+// app.use(morgan('dev'));
+// app.use(    cor()  );
+// app.use(bodyParser.text);
+exports.app.use(body_parser_1.default.json());
 exports.app.use("/user", user_1.router);
 exports.app.use("/", index_1.router);
 // app.use("/", (req, res) => {
