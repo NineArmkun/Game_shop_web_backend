@@ -8,7 +8,7 @@ router.post("/", (req, res) => {
 
   // ✅ query หา user
   conn.query(
-    "SELECT id, username, role FROM user WHERE username = ? AND password = ?",
+    "SELECT id, username, role FROM user WHERE user_name = ? AND password = ?",
     [username, password],
     (err, results) => {
       if (err) {
