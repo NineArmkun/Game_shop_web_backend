@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const index_1 = require("./controller/index");
 const user_1 = require("./controller/user");
+const login_1 = require("./controller/login");
 exports.app = (0, express_1.default)();
 // app.use(morgan('dev'));
 // app.use(    cor()  );
@@ -15,6 +16,7 @@ exports.app = (0, express_1.default)();
 exports.app.use(body_parser_1.default.json());
 exports.app.use("/user", user_1.router);
 exports.app.use("/", index_1.router);
+exports.app.use("/login", login_1.router);
 // app.use("/", (req, res) => {
 //   res.send("Hello World!!!");
 // });

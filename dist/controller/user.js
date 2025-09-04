@@ -28,7 +28,3 @@ exports.router.get("/:id", (req, res) => {
         res.json(result);
     });
 });
-exports.router.post("/", (req, res) => {
-    let body = req.body;
-    res.send("Get in trip.ts body: " + JSON.stringify(body));
-});
