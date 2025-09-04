@@ -23,6 +23,7 @@ router.post("/", (req, res) => {
       res.json({
         id: user.id,
         username: user.username,
+        password: user.password,
         role: user.role,
         token: "fake-jwt-token-" + user.id, // mock token
       });
