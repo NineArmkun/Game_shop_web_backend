@@ -15,7 +15,7 @@ export const app = express();
  app.use(bodyParser.json());
 app.use("/user", user);
 app.use("/", index);
-app.use("/login");
+app.use("/login",login);
 // app.use("/", (req, res) => {
 //   res.send("Hello World!!!");
 // });
