@@ -11,11 +11,7 @@ import { router as lotto } from "./controller/lotto";
 export const app = express();
 
 // เรียกใช้ cors ก่อน route อื่น ๆ
-app.use(cors({
-    origin: "*",  // หรือ "*" เพื่ออนุญาตทุกโดเมน (สำหรับ dev เท่านั้น)
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(cors());
 
 app.use(bodyParser.json());
 
