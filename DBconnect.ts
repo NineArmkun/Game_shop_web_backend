@@ -9,4 +9,5 @@ export const conn = mysql.createPool({
 
 
 
-})
+});
+console.log("MySQL pool created:", conn ? true : false);

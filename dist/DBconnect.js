@@ -12,3 +12,4 @@ exports.conn = promise_1.default.createPool({
     password: "xjY_1gE3I(!Y",
     database: "mb68_66011212013",
 });
+console.log("MySQL pool created:", exports.conn ? true : false);
