@@ -6,7 +6,8 @@ export const conn = mysql.createPool({
   user: "mb68_66011212013",
   password: "xjY_1gE3I(!Y",
   database: "mb68_66011212013",
-
+  waitForConnections: true,
+  queueLimit: 0,
 
 
 });
