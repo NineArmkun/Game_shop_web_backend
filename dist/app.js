@@ -14,11 +14,7 @@ const login_1 = require("./controller/login");
 const lotto_1 = require("./controller/lotto");
 exports.app = (0, express_1.default)();
 // เรียกใช้ cors ก่อน route อื่น ๆ
-exports.app.use((0, cors_1.default)({
-    origin: "*", // หรือ "*" เพื่ออนุญาตทุกโดเมน (สำหรับ dev เท่านั้น)
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
+exports.app.use((0, cors_1.default)());
 exports.app.use(body_parser_1.default.json());
 exports.app.use((0, morgan_1.default)('dev'));
 exports.app.use("/user", user_1.router);
