@@ -15,8 +15,6 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
-app.use(morgan('dev'));
-
 app.use("/user", user);
 app.use("/", index);
 app.use("/login", login);
