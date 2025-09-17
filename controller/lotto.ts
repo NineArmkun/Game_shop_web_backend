@@ -37,7 +37,7 @@ router.post("/add_lotto", async (req, res) => {
         const dateEnd = new Date(data.date_end).toISOString().slice(0, 19).replace('T', ' ');
 
         const insertQuery = `
-            INSERT INTO lotto (uid, lotto_number, date_start, date_end, price, sele_status, lotto_result_status)
+            INSERT INTO lotto (uid, lotto_number, date_start, date_end, price, sale_status, lotto_result_status)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
 
@@ -47,7 +47,7 @@ router.post("/add_lotto", async (req, res) => {
             dateStart,
             dateEnd,
             data.price,
-            data.sele_status || null,
+            data.sale_status || null,
             data.lotto_result_status || null
         ];
 

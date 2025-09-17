@@ -17,7 +17,12 @@ exports.router.get("/:id/paid", async (req, res) => {
     try {
         const connect = await DBconnect_1.conn;
         let id = +req.params.id;
-        const [rows] = await connect.query("select * from orders ,lotto where lotto.lid = orders.lid and orders.lid = ? AND payment_status = ?", [id, "paid"]);
+        const [rows] = await connect.query(`SELECT * 
+   FROM orders
+   JOIN user ON user.uid = orders.uid
+   JOIN lotto ON lotto.lid = orders.lid
+   WHERE user.uid = ? 
+     AND payment_status = ?`, [id, "paid"]);
         res.send(rows);
     }
     catch (err) {
@@ -29,7 +34,12 @@ exports.router.get("/:id/pending", async (req, res) => {
     try {
         const connect = await DBconnect_1.conn;
         let id = +req.params.id;
-        const [rows] = await connect.query("select * from orders ,lotto where lotto.lid = orders.lid and orders.lid = ? AND payment_status = ?", [id, "pending"]);
+        const [rows] = await connect.query(`SELECT * 
+   FROM orders
+   JOIN user ON user.uid = orders.uid
+   JOIN lotto ON lotto.lid = orders.lid
+   WHERE user.uid = ? 
+     AND payment_status = ?`, [id, "pending"]);
         res.send(rows);
     }
     catch (err) {

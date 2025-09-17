@@ -5,6 +5,6 @@ export interface Lotto {
     date_start: string;
     date_end: string;
     price: number;
-    sele_status?: string;
-    lotto_result_status?: string;
+    sale_status?: number;
+    lotto_result_status?: number;
 }
