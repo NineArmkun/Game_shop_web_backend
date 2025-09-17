@@ -28,15 +28,15 @@ exports.router.post("/", async (req, res) => {
             return res.status(401).json({ message: "รหัสผ่านไม่ถูกต้อง" });
         }
         // ถ้ารหัสผ่านถูกต้อง ส่งข้อมูลผู้ใช้กลับ
-        res.json({
-            uid: user.uid,
-            username: user.user_name,
-            email: user.email,
-            tel: user.tel,
-            money: user.money,
-            role_id: user.role_id,
-            login_match: true,
-        });
+        res.json([{
+                uid: user.uid,
+                username: user.user_name,
+                email: user.email,
+                tel: user.tel,
+                money: user.money,
+                role_id: user.role_id,
+                login_match: true,
+            }]);
     }
     catch (err) {
         console.error("❌ Login error:", err);

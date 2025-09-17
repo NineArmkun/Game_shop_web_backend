@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
     }
 
     // ถ้ารหัสผ่านถูกต้อง ส่งข้อมูลผู้ใช้กลับ
-    res.json({
+    res.json([{
       uid: user.uid,
       username: user.user_name,
       email: user.email,
@@ -43,7 +43,7 @@ router.post("/", async (req, res) => {
       money: user.money,
       role_id: user.role_id,
       login_match: true,
-    });
+    }]);
 
   } catch (err) {
     console.error("❌ Login error:", err);
