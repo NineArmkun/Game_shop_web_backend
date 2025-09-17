@@ -13,11 +13,23 @@ exports.router.get("/", async (req, res) => {
     res.send(rows);
 });
 //select ilid by lotto 
-exports.router.get("/:id", async (req, res) => {
+exports.router.get("/:id/paid", async (req, res) => {
     try {
         const connect = await DBconnect_1.conn;
         let id = +req.params.id;
-        const [rows] = await connect.query("select * from orders ,lotto where lotto.lid = orders.lid and orders.lid = ? ", [id]);
+        const [rows] = await connect.query("select * from orders ,lotto where lotto.lid = orders.lid and orders.lid = ? AND payment_status = ?", [id, "paid"]);
+        res.send(rows);
+    }
+    catch (err) {
+        console.error("Error fetching order by id:", err);
+        res.status(500).send("Internal Server Error");
+    }
+});
+exports.router.get("/:id/pending", async (req, res) => {
+    try {
+        const connect = await DBconnect_1.conn;
+        let id = +req.params.id;
+        const [rows] = await connect.query("select * from orders ,lotto where lotto.lid = orders.lid and orders.lid = ? AND payment_status = ?", [id, "pending"]);
         res.send(rows);
     }
     catch (err) {

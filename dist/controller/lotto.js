@@ -25,3 +25,39 @@ exports.router.get("/:id", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+exports.router.post("/add_lotto", async (req, res) => {
+    try {
+        const data = req.body;
+        const requiredFields = ['uid', 'lotto_number', 'date_start', 'date_end', 'price'];
+        for (const field of requiredFields) {
+            if (!(field in data)) {
+                return res.status(400).json({ error: `Missing required field: ${field}` });
+            }
+        }
+        const dateStart = new Date(data.date_start).toISOString().slice(0, 19).replace('T', ' ');
+        const dateEnd = new Date(data.date_end).toISOString().slice(0, 19).replace('T', ' ');
+        const insertQuery = `
+            INSERT INTO lotto (uid, lotto_number, date_start, date_end, price, sele_status, lotto_result_status)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+        const values = [
+            data.uid,
+            data.lotto_number,
+            dateStart,
+            dateEnd,
+            data.price,
+            data.sele_status || null,
+            data.lotto_result_status || null
+        ];
+        const [result] = await DBconnect_1.conn.query(insertQuery, values);
+        const newLid = result.insertId;
+        return res.status(201).json({
+            message: "Lotto entry added successfully!",
+            lid: newLid
+        });
+    }
+    catch (err) {
+        console.error("Error adding lotto entry:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
