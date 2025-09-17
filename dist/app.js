@@ -10,6 +10,7 @@ const login_1 = require("./controller/login");
 const index_1 = require("./controller/index");
 const user_1 = require("./controller/user");
 const lotto_1 = require("./controller/lotto");
+const order_1 = require("./controller/order");
 exports.app = (0, express_1.default)();
 // app.use(morgan('dev'));
 // app.use(    cor()  );
@@ -19,6 +20,7 @@ exports.app.use("/user", user_1.router);
 exports.app.use("/", index_1.router);
 exports.app.use("/login", login_1.router);
 exports.app.use("/lotto", lotto_1.router);
+exports.app.use("/order", order_1.router);
 // app.use("/", (req, res) => {
 //   res.send("Hello World!!!");
 // });
