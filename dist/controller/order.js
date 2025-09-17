@@ -47,3 +47,25 @@ exports.router.get("/:id/pending", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+exports.router.post('/pay', async (req, res) => {
+    const { uid, oid, price } = req.body;
+    try {
+        const [users] = await DBconnect_1.conn.query("SELECT money FROM user WHERE uid = ?", [uid]);
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: 'ไม่พบผู้ใช้' });
+        }
+        const user = users[0];
+        if (user.money < price) {
+            return res.status(400).json({ message: 'ยอดเงินไม่เพียงพอ' });
+        }
+        // หักเงิน
+        await DBconnect_1.conn.query("UPDATE user SET money = money - ? WHERE uid = ?", [price, uid]);
+        // อัปเดตสถานะการชำระเงิน
+        await DBconnect_1.conn.query("UPDATE orders SET payment_status = 'paid' WHERE oid = ?", [oid]);
+        res.status(200).json({ message: 'ชำระเงินสำเร็จ' });
+    }
+    catch (error) {
+        console.error('เกิดข้อผิดพลาด:', error);
+        res.status(500).json({ message: 'เกิดข้อผิดพลาด' });
+    }
+});
