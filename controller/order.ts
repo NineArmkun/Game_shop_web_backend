@@ -12,7 +12,7 @@ router.get("/:id", async (req, res,) => {
     try {
         const connect = await conn;
         let id = +req.params.id;
-        const [rows] = await connect.query("select * from orders where uid = ?", [id]);
+        const [rows] = await connect.query("select * from orders ,lotto where lotto.lid = orders.lid and orders.lid = ? ", [id]);
         res.send(rows);
     } catch (err) {
         console.error("Error fetching order by id:", err);
