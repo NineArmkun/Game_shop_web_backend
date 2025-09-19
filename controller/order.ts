@@ -108,7 +108,8 @@ router.post("/check_lotto", async (req, res) => {
         log(check_lotto);
 
     } catch (err) {
-
+        console.error("Error adding lotto entry:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 })
 
