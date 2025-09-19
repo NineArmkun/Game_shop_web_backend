@@ -55,13 +55,12 @@ router.post("/orders", async (req, res) => {
 
     try {
         const data: Orders = req.body;
-        const requiredFields = ['lid', 'uid', 'date', 'payment_status'];
+        const requiredFields = ['lid', 'uid'];
         for (const field of requiredFields) {
             if (!(field in data)) {
                 return res.status(400).json({ error: `Missing required field: ${field}` });
             }
         }
-        const date = new Date(data.date).toISOString().slice(0, 19).replace('T', ' ');
 
         const insertQuery = `
             INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
@@ -71,8 +70,8 @@ router.post("/orders", async (req, res) => {
         const values = [
             data.lid,
             data.uid,
-            data,
-            data.payment_status
+            Date,
+            "paid"
         ];
 
         const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
