@@ -97,7 +97,10 @@ exports.router.post("/check_lotto", async (req, res) => {
             });
         }
         else {
-            return res.status(500);
+            return res.status(200).json({
+                message: "ไม่ถูกรางวัล",
+                data: null
+            });
         }
     }
     catch (err) {
