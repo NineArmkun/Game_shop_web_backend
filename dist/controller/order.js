@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.router = void 0;
-const console_1 = require("console");
 const DBconnect_1 = require("../DBconnect");
 const express_1 = __importDefault(require("express"));
 exports.router = express_1.default.Router();
@@ -52,30 +51,31 @@ exports.router.get("/:id/pending", async (req, res) => {
 exports.router.post("/orders", async (req, res) => {
     try {
         const data = req.body;
-        const requiredFields = ["lid", "uid"];
+        const requiredFields = ['lid', 'uid'];
         for (const field of requiredFields) {
             if (!(field in data)) {
                 return res.status(400).json({ error: `Missing required field: ${field}` });
             }
         }
-        // format date -> YYYY-MM-DD HH:mm:ss
-        const date = new Date(data.date).toISOString().slice(0, 19).replace("T", " ");
-        // 1) insert ลง orders
         const insertQuery = `
-      INSERT INTO orders (lid, uid, date, payment_status)
-      VALUES (?, ?, ?, ?)
-    `;
-        const values = [data.lid, data.uid, Date, "paid"];
+            INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
+            VALUES (?, ?, ?, ?)
+        `;
+        const values = [
+            data.lid,
+            data.uid,
+            Date,
+            "paid"
+        ];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
-        // 2) update lotto.status = 0
-        await DBconnect_1.conn.query("UPDATE lotto SET sale_status = 0 WHERE lid = ?", [data.lid]);
+        const newLid = result.insertId;
         return res.status(201).json({
-            message: "Order created successfully and lotto sale_status updated!",
-            orderId: result.insertId,
+            message: "Lotto entry added successfully!",
+            lid: newLid
         });
     }
     catch (err) {
-        console.error("Error adding order:", err);
+        console.error("Error adding lotto entry:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 });
@@ -88,18 +88,28 @@ exports.router.post("/check_lotto", async (req, res) => {
    JOIN winning_lotto ON winning_lotto.lid = orders.lid 
    JOIN lotto ON winning_lotto.lid = lotto.lid 
    WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`, [lid, lotto_number]);
-        if (check_lotto.length > 0 && lotto_number == check_lotto.winning_lotto_number) {
-            (0, console_1.log)(check_lotto);
+        if (check_lotto.length > 0 && lotto_number == check_lotto[0].winning_lotto_number) {
+            console.log(check_lotto);
+            // await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
+            //     check_lotto.price,
+            //     uid,
+            // ]);
+            // await conn.query(
+            //     "UPDATE orders SET payment_status = 'cencelled' WHERE oid = ?",
+            //     [check_lotto.oid]
+            // );
             return res.status(200).json({
                 message: "ถูกรางวัล!",
                 data: {
-                    "old": check_lotto.old,
+                    "old": check_lotto[0].oid,
                     "prize": check_lotto[0].prize
                 }
             });
         }
         else {
-            return res.status(500);
+            return res.status(200).json({
+                message: "ไม่ถูกรางวัล"
+            });
         }
     }
     catch (err) {
