@@ -64,14 +64,13 @@ router.post("/orders", async (req, res) => {
 
         const insertQuery = `
             INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, NOW(),"paid" )
         `;
 
         const values = [
             data.lid,
             data.uid,
-            Date,
-            "paid"
+            
         ];
 
         const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
