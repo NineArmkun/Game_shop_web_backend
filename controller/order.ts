@@ -61,13 +61,14 @@ router.post("/orders", async (req , res) => {
         return res.status(400).json({ error: `Missing required field: ${field}` });
       }
     }
+    
 
     // format date -> YYYY-MM-DD HH:mm:ss
     const date = new Date(data.date).toISOString().slice(0, 19).replace("T", " ");
 
     // 1) insert ลง orders
     const insertQuery = `
-      INSERT INTO orders (\`lid\`, \`uid\`, \`date\`, \`payment_status\`)
+      INSERT INTO orders (lid, uid, date, payment_status)
       VALUES (?, ?, ?, ?)
     `;
 
