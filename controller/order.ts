@@ -51,41 +51,41 @@ router.get("/:id/pending", async (req, res) => {
 });
 //insert orders
 
-router.post("/orders", async (req , res) => {
-  try {
-    const data: Orders = req.body;
-    const requiredFields = ["lid", "uid"];
+router.post("/orders", async (req, res) => {
 
-    for (const field of requiredFields) {
-      if (!(field in data)) {
-        return res.status(400).json({ error: `Missing required field: ${field}` });
-      }
+    try {
+        const data: Orders = req.body;
+        const requiredFields = ['lid', 'uid'];
+        for (const field of requiredFields) {
+            if (!(field in data)) {
+                return res.status(400).json({ error: `Missing required field: ${field}` });
+            }
+        }
+
+        const insertQuery = `
+            INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
+            VALUES (?, ?, ?, ?)
+        `;
+
+        const values = [
+            data.lid,
+            data.uid,
+            Date,
+            "paid"
+        ];
+
+        const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
+
+        const newLid = result.insertId;
+
+        return res.status(201).json({
+            message: "Lotto entry added successfully!",
+            lid: newLid
+        });
+    } catch (err) {
+        console.error("Error adding lotto entry:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
-
-
-    // format date -> YYYY-MM-DD HH:mm:ss
-
-    // 1) insert ลง orders
-    const insertQuery = `
-      INSERT INTO orders (lid, uid, date, payment_status)
-      VALUES (?, ?, ?, ?)
-    `;
-
-    const values = [data.lid, data.uid, Date, "paid"];
-
-    const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
-
-    // 2) update lotto.status = 0
-    await conn.query("UPDATE lotto SET sale_status = 0 WHERE lid = ?", [data.lid]);
-
-    return res.status(201).json({
-      message: "Order created successfully and lotto sale_status updated!",
-      orderId: result.insertId,
-    });
-  } catch (err) {
-    console.error("Error adding order:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 
@@ -104,20 +104,29 @@ router.post("/check_lotto", async (req, res) => {
             [lid, lotto_number]
         );
 
-        if (check_lotto.length > 0 && lotto_number == check_lotto.winning_lotto_number) {
-            log(check_lotto);
-
+        if (check_lotto.length > 0 && lotto_number == check_lotto[0].winning_lotto_number) {
+            console.log(check_lotto);
+            // await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
+            //     check_lotto.price,
+            //     uid,
+            // ]);
+            // await conn.query(
+            //     "UPDATE orders SET payment_status = 'cencelled' WHERE oid = ?",
+            //     [check_lotto.oid]
+            // );
             return res.status(200).json({
                 message: "ถูกรางวัล!",
                 data: {
-                    "old": check_lotto.old,
+                    "old": check_lotto[0].oid,
                     "prize": check_lotto[0].prize
                 }
 
             });
         } else {
-            return res.status(500);
+            return res.status(200).json({
+                message: "ไม่ถูกรางวัล"
 
+            });
         }
 
     } catch (err) {
