@@ -81,15 +81,15 @@ exports.router.post("/orders", async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 });
-exports.router.post("/order", (req, res) => {
-    try {
-    }
-    catch (error) { }
-});
 exports.router.post("/check_lotto", async (req, res) => {
     const { uid, lotto_number, lid } = req.body;
     try {
-        const [check_lotto] = await DBconnect_1.conn.query("select * from orders join user on user.uid = orders.uid join on  winning_lotto.lid = lotto.lid where lid = ? and winning_lotto.winning_lotto_number = ? ", [lid, lotto_number]);
+        const [check_lotto] = await DBconnect_1.conn.query(`SELECT * 
+   FROM orders 
+   JOIN user ON user.uid = orders.uid 
+   JOIN winning_lotto ON winning_lotto.lid = orders.lid 
+   JOIN lotto ON winning_lotto.lid = lotto.lid 
+   WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`, [lid, lotto_number]);
         res.send(check_lotto);
         (0, console_1.log)(check_lotto);
     }
