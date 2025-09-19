@@ -64,7 +64,7 @@ router.post("/orders", async (req, res) => {
         const date = new Date(data.date).toISOString().slice(0, 19).replace('T', ' ');
 
         const insertQuery = `
-            INSERT INTO lotto ('lid', 'uid', 'date', 'payment_status')
+            INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
             VALUES (?, ?, ?, ?)
         `;
 
@@ -90,11 +90,6 @@ router.post("/orders", async (req, res) => {
 });
 
 
-
-router.post("/order", (req, res) => {
-    try {
-    } catch (error) { }
-});
 
 router.post("/check_lotto", async (req, res) => {
     const { uid, lotto_number, lid } = req.body;
