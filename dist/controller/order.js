@@ -52,32 +52,30 @@ exports.router.get("/:id/pending", async (req, res) => {
 exports.router.post("/orders", async (req, res) => {
     try {
         const data = req.body;
-        const requiredFields = ['lid', 'uid', 'date', 'payment_status'];
+        const requiredFields = ["lid", "uid", "date", "payment_status"];
         for (const field of requiredFields) {
             if (!(field in data)) {
                 return res.status(400).json({ error: `Missing required field: ${field}` });
             }
         }
-        const date = new Date(data.date).toISOString().slice(0, 19).replace('T', ' ');
+        // format date -> YYYY-MM-DD HH:mm:ss
+        const date = new Date(data.date).toISOString().slice(0, 19).replace("T", " ");
+        // 1) insert ลง orders
         const insertQuery = `
-            INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
-            VALUES (?, ?, ?, ?)
-        `;
-        const values = [
-            data.lid,
-            data.uid,
-            data,
-            data.payment_status
-        ];
+      INSERT INTO orders (\`lid\`, \`uid\`, \`date\`, \`payment_status\`)
+      VALUES (?, ?, ?, ?)
+    `;
+        const values = [data.lid, data.uid, date, data.payment_status];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
-        const newLid = result.insertId;
+        // 2) update lotto.status = 0
+        await DBconnect_1.conn.query("UPDATE lotto SET status = 0 WHERE id = ?", [data.lid]);
         return res.status(201).json({
-            message: "Lotto entry added successfully!",
-            lid: newLid
+            message: "Order created successfully and lotto status updated!",
+            orderId: result.insertId,
         });
     }
     catch (err) {
-        console.error("Error adding lotto entry:", err);
+        console.error("Error adding order:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 });
@@ -90,10 +88,8 @@ exports.router.post("/check_lotto", async (req, res) => {
    JOIN winning_lotto ON winning_lotto.lid = orders.lid 
    JOIN lotto ON winning_lotto.lid = lotto.lid 
    WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`, [lid, lotto_number]);
-        if (check_lotto.lotto_number == check_lotto.winning_lotto_number) {
-            (0, console_1.log)(check_lotto);
-            return res.status(200);
-        }
+        res.send(check_lotto);
+        (0, console_1.log)(check_lotto);
     }
     catch (err) {
         console.error("Error adding lotto entry:", err);
