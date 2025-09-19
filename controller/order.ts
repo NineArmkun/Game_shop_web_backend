@@ -62,16 +62,17 @@ router.post("/orders", async (req, res) => {
             }
         }
 
-        const insertQuery = `
-            INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
-            VALUES (?, ?, NOW(),"paid" )
-        `;
+       const insertQuery = `
+  INSERT INTO orders (lid, uid, \`date\`, payment_status)
+  VALUES (?, ?, NOW(), ?)
+`;
 
-        const values = [
-            data.lid,
-            data.uid,
-            
-        ];
+const values = [
+  data.lid,
+  data.uid,
+  "paid"
+];
+
 
         const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
 
