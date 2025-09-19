@@ -102,7 +102,7 @@ exports.router.post("/check_lotto", async (req, res) => {
             return res.status(200).json({
                 message: "ถูกรางวัล!",
                 data: {
-                    "old": check_lotto[0].oid,
+                    "oid": check_lotto[0].oid,
                     "prize": check_lotto[0].prize
                 }
             });
