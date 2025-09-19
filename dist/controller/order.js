@@ -68,9 +68,9 @@ exports.router.post("/orders", async (req, res) => {
         const values = [data.lid, data.uid, date, data.payment_status];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
         // 2) update lotto.status = 0
-        await DBconnect_1.conn.query("UPDATE lotto SET status = 0 WHERE id = ?", [data.lid]);
+        await DBconnect_1.conn.query("UPDATE lotto SET sale_status = 0 WHERE lid = ?", [data.lid]);
         return res.status(201).json({
-            message: "Order created successfully and lotto status updated!",
+            message: "Order created successfully and lotto sale_status updated!",
             orderId: result.insertId,
         });
     }
