@@ -49,6 +49,38 @@ exports.router.get("/:id/pending", async (req, res) => {
     }
 });
 //insert orders
+exports.router.post("/orders", async (req, res) => {
+    try {
+        const data = req.body;
+        const requiredFields = ['lid', 'uid', 'date', 'payment_status'];
+        for (const field of requiredFields) {
+            if (!(field in data)) {
+                return res.status(400).json({ error: `Missing required field: ${field}` });
+            }
+        }
+        const date = new Date(data.date).toISOString().slice(0, 19).replace('T', ' ');
+        const insertQuery = `
+            INSERT INTO lotto ('lid', 'uid', 'date', 'payment_status')
+            VALUES (?, ?, ?, ?)
+        `;
+        const values = [
+            data.lid,
+            data.uid,
+            data,
+            data.payment_status
+        ];
+        const [result] = await DBconnect_1.conn.query(insertQuery, values);
+        const newLid = result.insertId;
+        return res.status(201).json({
+            message: "Lotto entry added successfully!",
+            lid: newLid
+        });
+    }
+    catch (err) {
+        console.error("Error adding lotto entry:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 exports.router.post("/order", (req, res) => {
     try {
     }
