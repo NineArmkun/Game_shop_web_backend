@@ -70,7 +70,7 @@ router.post("/orders", async (req, res) => {
 const values = [
   data.lid,
   data.uid,
-  "paid"
+  "pending"
 ];
 
 

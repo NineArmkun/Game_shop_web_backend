@@ -64,7 +64,7 @@ exports.router.post("/orders", async (req, res) => {
         const values = [
             data.lid,
             data.uid,
-            "paid"
+            "pending"
         ];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
         const newLid = result.insertId;
