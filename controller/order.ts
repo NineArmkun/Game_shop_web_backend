@@ -95,9 +95,15 @@ router.post("/check_lotto", async (req, res) => {
 
     try {
         const [check_lotto]: any = await conn.query(
-            "select * from orders join user on user.uid = orders.uid join on  winning_lotto.lid = lotto.lid where lid = ? and winning_lotto.winning_lotto_number = ? ",
+            `SELECT * 
+   FROM orders 
+   JOIN user ON user.uid = orders.uid 
+   JOIN winning_lotto ON winning_lotto.lid = orders.lid 
+   JOIN lotto ON winning_lotto.lid = lotto.lid 
+   WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`,
             [lid, lotto_number]
         );
+
         res.send(check_lotto);
         log(check_lotto);
 

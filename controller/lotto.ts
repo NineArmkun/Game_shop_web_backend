@@ -64,6 +64,47 @@ router.post("/add_lotto", async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 });
+router.post("/add_winning_lotto", async (req, res) => {
+    try {
+        const data = req.body;
+
+        // Required fields
+        const requiredFields = ["lid", "winning_lotto_number", "rank", "date", "prize"];
+        for (const field of requiredFields) {
+            if (!(field in data)) {
+                return res.status(400).json({ error: `Missing required field: ${field}` });
+            }
+        }
+
+        // Format date
+        const drawDate = new Date(data.date).toISOString().slice(0, 10); // YYYY-MM-DD
+
+        // Insert query (escape reserved keywords with backticks)
+        const insertQuery = `
+            INSERT INTO winning_lotto (lid, winning_lotto_number, \`rank\`, \`date\`, prize)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
+        const values = [
+            data.lid,
+            data.winning_lotto_number,
+            data.rank,
+            drawDate,
+            data.prize
+        ];
+
+        const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
+
+        return res.status(201).json({
+            message: "Winning lotto entry added successfully!",
+            wid: result.insertId
+        });
+
+    } catch (err) {
+        console.error("Error adding winning lotto entry:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 
 
