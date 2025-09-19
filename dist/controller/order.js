@@ -58,13 +58,12 @@ exports.router.post("/orders", async (req, res) => {
             }
         }
         const insertQuery = `
-            INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
-            VALUES (?, ?, ?, ?)
-        `;
+  INSERT INTO orders (lid, uid, \`date\`, payment_status)
+  VALUES (?, ?, NOW(), ?)
+`;
         const values = [
             data.lid,
             data.uid,
-            Date,
             "paid"
         ];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
