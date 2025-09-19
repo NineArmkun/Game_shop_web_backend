@@ -91,21 +91,49 @@ exports.router.post("/check_lotto", async (req, res) => {
    WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`, [lid, lotto_number]);
         if (check_lotto.length > 0 && lotto_number == check_lotto[0].winning_lotto_number) {
             console.log(check_lotto);
+            // await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
+            //     check_lotto.price,
+            //     uid,
+            // ]);
+            // await conn.query(
+            //     "UPDATE orders SET payment_status = 'cencelled' WHERE oid = ?",
+            //     [check_lotto.oid]
+            // );
             return res.status(200).json({
                 message: "ถูกรางวัล!",
-                data: check_lotto[0],
+                data: check_lotto
             });
         }
         else {
             return res.status(200).json({
-                message: "ไม่ถูกรางวัล",
-                data: null
+                message: "ไม่ถูกรางวัล"
             });
         }
     }
     catch (err) {
         console.error("Error adding lotto entry:", err);
         return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+exports.router.post("/updateMoney", async (req, res) => {
+    const { uid, oid, prize } = req.body;
+    try {
+        const [users] = await DBconnect_1.conn.query("SELECT money FROM user WHERE uid = ?", [uid]);
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: "ไม่พบผู้ใช้" });
+        }
+        // หักเงิน
+        await DBconnect_1.conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
+            prize,
+            uid,
+        ]);
+        // อัปเดตสถานะการชำระเงิน
+        await DBconnect_1.conn.query("UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?", [oid]);
+        res.status(200).json({ message: "ขึ้นเงินสำเร็จ" });
+    }
+    catch (error) {
+        console.error("เกิดข้อผิดพลาด:", error);
+        res.status(500).json({ message: "เกิดข้อผิดพลาด" });
     }
 });
 exports.router.post("/pay", async (req, res) => {
