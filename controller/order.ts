@@ -105,14 +105,57 @@ router.post("/check_lotto", async (req, res) => {
             [lid, lotto_number]
         );
 
-        res.send(check_lotto);
-        log(check_lotto);
+        if (check_lotto.length > 0 && lotto_number == check_lotto.winning_lotto_number) {
+            log(check_lotto);
+
+            return res.status(200).json({
+                message: "ถูกรางวัล!",
+                data: check_lotto,
+            });
+        } else {
+            return res.status(500);
+
+        }
 
     } catch (err) {
         console.error("Error adding lotto entry:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
-})
+});
+router.post("/updateMoney", async (req, res) => {
+    const { uid, oid, prize } = req.body;
+
+    try {
+        const [users]: any = await conn.query(
+            "SELECT money FROM user WHERE uid = ?",
+            [uid]
+        );
+
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: "ไม่พบผู้ใช้" });
+        }
+
+
+
+        // หักเงิน
+        await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
+            prize,
+            uid,
+        ]);
+
+        // อัปเดตสถานะการชำระเงิน
+        await conn.query(
+            "UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?",
+            [oid]
+        );
+
+        res.status(200).json({ message: "ขึ้นเงินสำเร็จ" });
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาด:", error);
+        res.status(500).json({ message: "เกิดข้อผิดพลาด" });
+    }
+});
+
 
 router.post("/pay", async (req, res) => {
     const { uid, oid, price } = req.body;

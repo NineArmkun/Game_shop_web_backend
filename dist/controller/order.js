@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.router = void 0;
-const console_1 = require("console");
 const DBconnect_1 = require("../DBconnect");
 const express_1 = __importDefault(require("express"));
 exports.router = express_1.default.Router();
@@ -94,6 +93,27 @@ exports.router.post("/check_lotto", async (req, res) => {
     catch (err) {
         console.error("Error adding lotto entry:", err);
         return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+exports.router.post("/updateMoney", async (req, res) => {
+    const { uid, oid, prize } = req.body;
+    try {
+        const [users] = await DBconnect_1.conn.query("SELECT money FROM user WHERE uid = ?", [uid]);
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: "ไม่พบผู้ใช้" });
+        }
+        // หักเงิน
+        await DBconnect_1.conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
+            prize,
+            uid,
+        ]);
+        // อัปเดตสถานะการชำระเงิน
+        await DBconnect_1.conn.query("UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?", [oid]);
+        res.status(200).json({ message: "ขึ้นเงินสำเร็จ" });
+    }
+    catch (error) {
+        console.error("เกิดข้อผิดพลาด:", error);
+        res.status(500).json({ message: "เกิดข้อผิดพลาด" });
     }
 });
 exports.router.post("/pay", async (req, res) => {
