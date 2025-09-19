@@ -51,42 +51,42 @@ router.get("/:id/pending", async (req, res) => {
 });
 //insert orders
 
-router.post("/orders", async (req , res) => {
-  try {
-    const data: Orders = req.body;
-    const requiredFields = ["lid", "uid", "date", "payment_status"];
+router.post("/orders", async (req, res) => {
 
-    for (const field of requiredFields) {
-      if (!(field in data)) {
-        return res.status(400).json({ error: `Missing required field: ${field}` });
-      }
+    try {
+        const data: Orders = req.body;
+        const requiredFields = ['lid', 'uid', 'date', 'payment_status'];
+        for (const field of requiredFields) {
+            if (!(field in data)) {
+                return res.status(400).json({ error: `Missing required field: ${field}` });
+            }
+        }
+        const date = new Date(data.date).toISOString().slice(0, 19).replace('T', ' ');
+
+        const insertQuery = `
+            INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
+            VALUES (?, ?, ?, ?)
+        `;
+
+        const values = [
+            data.lid,
+            data.uid,
+            data,
+            data.payment_status
+        ];
+
+        const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
+
+        const newLid = result.insertId;
+
+        return res.status(201).json({
+            message: "Lotto entry added successfully!",
+            lid: newLid
+        });
+    } catch (err) {
+        console.error("Error adding lotto entry:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
-    
-
-    // format date -> YYYY-MM-DD HH:mm:ss
-    const date = new Date(data.date).toISOString().slice(0, 19).replace("T", " ");
-
-    // 1) insert ลง orders
-    const insertQuery = `
-      INSERT INTO orders (lid, uid, date, payment_status)
-      VALUES (?, ?, ?, ?)
-    `;
-
-    const values = [data.lid, data.uid, date, data.payment_status];
-
-    const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
-
-    // 2) update lotto.status = 0
-    await conn.query("UPDATE lotto SET sale_status = 0 WHERE lid = ?", [data.lid]);
-
-    return res.status(201).json({
-      message: "Order created successfully and lotto sale_status updated!",
-      orderId: result.insertId,
-    });
-  } catch (err) {
-    console.error("Error adding order:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 
@@ -105,8 +105,10 @@ router.post("/check_lotto", async (req, res) => {
             [lid, lotto_number]
         );
 
-        res.send(check_lotto);
-        log(check_lotto);
+        if (check_lotto.lotto_number == check_lotto.winning_lotto_number) {
+            log(check_lotto);
+            return res.status(200);
+        }
 
     } catch (err) {
         console.error("Error adding lotto entry:", err);

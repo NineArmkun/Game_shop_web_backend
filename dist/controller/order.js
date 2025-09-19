@@ -62,15 +62,15 @@ exports.router.post("/orders", async (req, res) => {
         const date = new Date(data.date).toISOString().slice(0, 19).replace("T", " ");
         // 1) insert ลง orders
         const insertQuery = `
-      INSERT INTO orders (lid, uid, date, payment_status)
+      INSERT INTO orders (\`lid\`, \`uid\`, \`date\`, \`payment_status\`)
       VALUES (?, ?, ?, ?)
     `;
         const values = [data.lid, data.uid, date, data.payment_status];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
         // 2) update lotto.status = 0
-        await DBconnect_1.conn.query("UPDATE lotto SET sale_status = 0 WHERE lid = ?", [data.lid]);
+        await DBconnect_1.conn.query("UPDATE lotto SET status = 0 WHERE id = ?", [data.lid]);
         return res.status(201).json({
-            message: "Order created successfully and lotto sale_status updated!",
+            message: "Order created successfully and lotto status updated!",
             orderId: result.insertId,
         });
     }
