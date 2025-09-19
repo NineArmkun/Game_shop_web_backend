@@ -1,5 +1,7 @@
 import { conn } from "../DBconnect";
 import express from "express";
+import { Orders } from "../model/order";
+import { ResultSetHeader } from "mysql2";
 
 export const router = express.Router();
 //select all
@@ -47,10 +49,46 @@ router.get("/:id/pending", async (req, res) => {
   }
 });
 //insert orders
-router.post("/order", (req, res) => {
-  try {
-  } catch (error) {}
+
+router.post("/orders", async (req, res) => {
+
+    try {
+        const data: Orders = req.body;
+        const requiredFields = ['lid', 'uid', 'date', 'payment_status'];
+        for (const field of requiredFields) {
+            if (!(field in data)) {
+                return res.status(400).json({ error: `Missing required field: ${field}` });
+            }
+        }
+        const date = new Date(data.date).toISOString().slice(0, 19).replace('T', ' ');
+
+        const insertQuery = `
+            INSERT INTO lotto ('lid', 'uid', 'date', 'payment_status')
+            VALUES (?, ?, ?, ?)
+        `;
+
+        const values = [
+            data.lid,
+            data.uid,
+            data,
+            data.payment_status
+        ];
+
+        const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
+        
+        const newLid = result.insertId;
+
+        return res.status(201).json({ 
+            message: "Lotto entry added successfully!", 
+            lid: newLid 
+        });
+    }catch (err) {
+        console.error("Error adding lotto entry:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
 });
+
+
 
 router.post("/pay", async (req, res) => {
   const { uid, oid, price } = req.body;
