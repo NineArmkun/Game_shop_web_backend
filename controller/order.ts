@@ -76,10 +76,10 @@ router.post("/orders", async (req , res) => {
     const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
 
     // 2) update lotto.status = 0
-    await conn.query("UPDATE lotto SET status = 0 WHERE id = ?", [data.lid]);
+    await conn.query("UPDATE lotto SET sale_status = 0 WHERE lid = ?", [data.lid]);
 
     return res.status(201).json({
-      message: "Order created successfully and lotto status updated!",
+      message: "Order created successfully and lotto sale_status updated!",
       orderId: result.insertId,
     });
   } catch (err) {
