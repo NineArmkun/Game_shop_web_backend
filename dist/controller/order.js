@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.router = void 0;
+const console_1 = require("console");
 const DBconnect_1 = require("../DBconnect");
 const express_1 = __importDefault(require("express"));
 exports.router = express_1.default.Router();
@@ -84,26 +85,24 @@ exports.router.post("/check_lotto", async (req, res) => {
     const { uid, lotto_number, lid } = req.body;
     try {
         const [check_lotto] = await DBconnect_1.conn.query(`SELECT * 
-             FROM orders 
-             JOIN user ON user.uid = orders.uid 
-             JOIN winning_lotto ON winning_lotto.lid = orders.lid 
-             JOIN lotto ON winning_lotto.lid = lotto.lid 
-             WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`, [lid, lotto_number]);
-        if (check_lotto.length > 0 && lotto_number == check_lotto[0].winning_lotto_number) {
-            console.log(check_lotto);
+   FROM orders 
+   JOIN user ON user.uid = orders.uid 
+   JOIN winning_lotto ON winning_lotto.lid = orders.lid 
+   JOIN lotto ON winning_lotto.lid = lotto.lid 
+   WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`, [lid, lotto_number]);
+        if (check_lotto.length > 0 && lotto_number == check_lotto.winning_lotto_number) {
+            (0, console_1.log)(check_lotto);
             return res.status(200).json({
                 message: "ถูกรางวัล!",
-                data: check_lotto[0],
+                data: check_lotto,
             });
         }
         else {
-            return res.status(404).json({
-                message: "ไม่ถูกรางวัล หรือไม่มีข้อมูลตรงตามเงื่อนไข",
-            });
+            return res.status(500);
         }
     }
     catch (err) {
-        console.error("Error checking lotto entry:", err);
+        console.error("Error adding lotto entry:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 });
