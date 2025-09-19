@@ -64,7 +64,6 @@ router.post("/orders", async (req , res) => {
 
 
     // format date -> YYYY-MM-DD HH:mm:ss
-    const date = new Date(data.date).toISOString().slice(0, 19).replace("T", " ");
 
     // 1) insert ลง orders
     const insertQuery = `
