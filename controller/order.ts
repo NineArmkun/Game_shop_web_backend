@@ -63,7 +63,7 @@ router.post("/orders", async (req, res) => {
         const date = new Date(data.date).toISOString().slice(0, 19).replace('T', ' ');
 
         const insertQuery = `
-            INSERT INTO lotto ('lid', 'uid', 'date', 'payment_status')
+            INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
             VALUES (?, ?, ?, ?)
         `;
 
