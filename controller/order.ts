@@ -91,11 +91,6 @@ router.post("/orders", async (req, res) => {
 
 
 
-router.post("/order", (req, res) => {
-    try {
-    } catch (error) { }
-});
-
 router.post("/check_lotto", async (req, res) => {
     const { uid, lotto_number, lid } = req.body;
 
