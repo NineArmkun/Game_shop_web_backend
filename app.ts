@@ -14,12 +14,15 @@ export const app = express();
 // app.use(morgan('dev'));
 // app.use(    cor()  );
 // app.use(bodyParser.text);
+
+app.use(cor());
 app.use(bodyParser.json());
 app.use("/user", user);
 app.use("/", index);
 app.use("/login", login);
 app.use("/lotto", lotto)
 app.use("/order", order);
+
 // app.use("/", (req, res) => {
 //   res.send("Hello World!!!");
 // });
