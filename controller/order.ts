@@ -105,9 +105,16 @@ router.post("/check_lotto", async (req, res) => {
             [lid, lotto_number]
         );
 
-        if (check_lotto.lotto_number == check_lotto.winning_lotto_number) {
+        if (check_lotto.length > 0 && lotto_number == check_lotto.winning_lotto_number) {
             log(check_lotto);
-            return res.status(200);
+
+            return res.status(200).json({
+                message: "ถูกรางวัล!",
+                data: check_lotto,
+            });
+        } else {
+            return res.status(500);
+
         }
 
     } catch (err) {

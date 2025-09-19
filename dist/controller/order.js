@@ -90,9 +90,15 @@ exports.router.post("/check_lotto", async (req, res) => {
    JOIN winning_lotto ON winning_lotto.lid = orders.lid 
    JOIN lotto ON winning_lotto.lid = lotto.lid 
    WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`, [lid, lotto_number]);
-        if (check_lotto.lotto_number == check_lotto.winning_lotto_number) {
+        if (check_lotto.length > 0 && lotto_number == check_lotto.winning_lotto_number) {
             (0, console_1.log)(check_lotto);
-            return res.status(200);
+            return res.status(200).json({
+                message: "ถูกรางวัล!",
+                data: check_lotto,
+            });
+        }
+        else {
+            return res.status(500);
         }
     }
     catch (err) {
