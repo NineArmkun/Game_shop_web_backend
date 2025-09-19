@@ -54,8 +54,8 @@ exports.router.post('/topup/:id', async (req, res) => {
         res.status(500).json({ message: 'เกิดข้อผิดพลาด' });
     }
 });
-exports.router.post('/user/update/:uid', async (req, res) => {
-    const { uid } = req.params;
+exports.router.post('/update/:id', async (req, res) => {
+    let uid = req.params.id;
     const { username, email, tel } = req.body;
     try {
         await DBconnect_1.conn.query("UPDATE user SET user_name = ?, email = ?, tel = ? WHERE uid = ?", [username, email, tel, uid]);
