@@ -62,16 +62,16 @@ router.post("/orders", async (req, res) => {
             }
         }
 
-       const insertQuery = `
+        const insertQuery = `
   INSERT INTO orders (lid, uid, \`date\`, payment_status)
   VALUES (?, ?, NOW(), ?)
 `;
 
-const values = [
-  data.lid,
-  data.uid,
-  "pending"
-];
+        const values = [
+            data.lid,
+            data.uid,
+            "pending"
+        ];
 
 
         const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
@@ -123,7 +123,7 @@ router.post("/check_lotto", async (req, res) => {
 
             });
         } else {
-            return res.status(201).json({
+            return res.status(200).json({
                 message: "ไม่ถูกรางวัล"
 
             });
