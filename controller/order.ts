@@ -97,32 +97,27 @@ router.post("/check_lotto", async (req, res) => {
     try {
         const [check_lotto]: any = await conn.query(
             `SELECT * 
-             FROM orders 
-             JOIN user ON user.uid = orders.uid 
-             JOIN winning_lotto ON winning_lotto.lid = orders.lid 
-             JOIN lotto ON winning_lotto.lid = lotto.lid 
-             WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`,
+   FROM orders 
+   JOIN user ON user.uid = orders.uid 
+   JOIN winning_lotto ON winning_lotto.lid = orders.lid 
+   JOIN lotto ON winning_lotto.lid = lotto.lid 
+   WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`,
             [lid, lotto_number]
         );
 
-        if (check_lotto.length > 0 && lotto_number == check_lotto[0].winning_lotto_number) {
-            console.log(check_lotto);
-            return res.status(200).json({
-                message: "ถูกรางวัล!",
-                data: check_lotto[0],
-            });
+        if (lotto_number == check_lotto.winning_lotto_number) {
+            log(check_lotto);
+            return res.status(200).send(check_lotto);
         } else {
-            return res.status(404).json({
-                message: "ไม่ถูกรางวัล หรือไม่มีข้อมูลตรงตามเงื่อนไข",
-            });
+            return res.status(500);
+
         }
 
     } catch (err) {
-        console.error("Error checking lotto entry:", err);
+        console.error("Error adding lotto entry:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
-});
-
+})
 
 router.post("/pay", async (req, res) => {
     const { uid, oid, price } = req.body;
