@@ -117,7 +117,10 @@ router.post("/check_lotto", async (req, res) => {
             // );
             return res.status(200).json({
                 message: "ถูกรางวัล!",
-                data: check_lotto
+                data: {
+                    "old": check_lotto.old,
+                    "prize": check_lotto.prize
+                }
 
             });
         } else {
