@@ -51,50 +51,44 @@ router.get("/:id/pending", async (req, res) => {
 });
 //insert orders
 
-router.post("/orders", async (req, res) => {
+router.post("/orders", async (req , res) => {
+  try {
+    const data: Orders = req.body;
+    const requiredFields = ["lid", "uid", "date", "payment_status"];
 
-    try {
-        const data: Orders = req.body;
-        const requiredFields = ['lid', 'uid', 'date', 'payment_status'];
-        for (const field of requiredFields) {
-            if (!(field in data)) {
-                return res.status(400).json({ error: `Missing required field: ${field}` });
-            }
-        }
-        const date = new Date(data.date).toISOString().slice(0, 19).replace('T', ' ');
-
-        const insertQuery = `
-            INSERT INTO lotto ('lid', 'uid', 'date', 'payment_status')
-            VALUES (?, ?, ?, ?)
-        `;
-
-        const values = [
-            data.lid,
-            data.uid,
-            data,
-            data.payment_status
-        ];
-
-        const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
-
-        const newLid = result.insertId;
-
-        return res.status(201).json({
-            message: "Lotto entry added successfully!",
-            lid: newLid
-        });
-    } catch (err) {
-        console.error("Error adding lotto entry:", err);
-        return res.status(500).json({ error: "Internal Server Error" });
+    for (const field of requiredFields) {
+      if (!(field in data)) {
+        return res.status(400).json({ error: `Missing required field: ${field}` });
+      }
     }
+
+    // format date -> YYYY-MM-DD HH:mm:ss
+    const date = new Date(data.date).toISOString().slice(0, 19).replace("T", " ");
+
+    // 1) insert ลง orders
+    const insertQuery = `
+      INSERT INTO orders (\`lid\`, \`uid\`, \`date\`, \`payment_status\`)
+      VALUES (?, ?, ?, ?)
+    `;
+
+    const values = [data.lid, data.uid, date, data.payment_status];
+
+    const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
+
+    // 2) update lotto.status = 0
+    await conn.query("UPDATE lotto SET status = 0 WHERE id = ?", [data.lid]);
+
+    return res.status(201).json({
+      message: "Order created successfully and lotto status updated!",
+      orderId: result.insertId,
+    });
+  } catch (err) {
+    console.error("Error adding order:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 
-
-router.post("/order", (req, res) => {
-    try {
-    } catch (error) { }
-});
 
 router.post("/check_lotto", async (req, res) => {
     const { uid, lotto_number, lid } = req.body;
@@ -108,7 +102,8 @@ router.post("/check_lotto", async (req, res) => {
         log(check_lotto);
 
     } catch (err) {
-
+        console.error("Error adding lotto entry:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 })
 
