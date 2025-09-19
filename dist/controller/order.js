@@ -51,22 +51,20 @@ exports.router.get("/:id/pending", async (req, res) => {
 exports.router.post("/orders", async (req, res) => {
     try {
         const data = req.body;
-        const requiredFields = ['lid', 'uid', 'date', 'payment_status'];
+        const requiredFields = ['lid', 'uid'];
         for (const field of requiredFields) {
             if (!(field in data)) {
                 return res.status(400).json({ error: `Missing required field: ${field}` });
             }
         }
-        const date = new Date(data.date).toISOString().slice(0, 19).replace('T', ' ');
         const insertQuery = `
-            INSERT INTO orders ('lid', 'uid', 'date', 'payment_status')
-            VALUES (?, ?, ?, ?)
-        `;
+  INSERT INTO orders (lid, uid, \`date\`, payment_status)
+  VALUES (?, ?, NOW(), ?)
+`;
         const values = [
             data.lid,
             data.uid,
-            data,
-            data.payment_status
+            "pending"
         ];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
         const newLid = result.insertId;
