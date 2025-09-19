@@ -30,8 +30,9 @@ exports.router.get("/:id", async (req, res) => {
     }
 });
 // router.ts หรือ app.ts
-exports.router.post('/topup', async (req, res) => {
-    const { uid, amount } = req.body;
+exports.router.post('/topup/:id', async (req, res) => {
+    let uid = req.params.id;
+    const { amount } = req.body;
     if (!uid || !amount || amount <= 0) {
         return res.status(400).json({ message: 'ข้อมูลไม่ถูกต้อง' });
     }
