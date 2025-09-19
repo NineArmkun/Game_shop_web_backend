@@ -62,8 +62,8 @@ router.post('/topup/:id', async (req, res) => {
     }
 });
 
-router.post('/user/update/:uid', async (req, res) => {
-  const { uid } = req.params;
+router.post('/update/:id', async (req, res) => {
+  let uid = req.params.id;
   const { username, email, tel } = req.body;
   try {
     await conn.query(
