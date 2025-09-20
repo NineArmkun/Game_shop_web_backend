@@ -91,7 +91,7 @@ router.post("/orders", async (req, res) => {
 
 
 router.post("/check_lotto", async (req, res) => {
-    const { uid, lotto_number, lid } = req.body;
+    const { oid, lotto_number, lid } = req.body;
 
     try {
         const [check_lotto]: any = await conn.query(
@@ -123,6 +123,10 @@ router.post("/check_lotto", async (req, res) => {
 
             });
         } else {
+            await conn.query(
+                "UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?",
+                [oid]
+            );
             return res.status(200).json({
                 message: "ไม่ถูกรางวัล"
 
@@ -136,7 +140,6 @@ router.post("/check_lotto", async (req, res) => {
 });
 router.post("/updateMoney", async (req, res) => {
     const { uid, oid, prize } = req.body;
-
     try {
         const [users]: any = await conn.query(
             "SELECT money FROM user WHERE uid = ?",
@@ -146,27 +149,23 @@ router.post("/updateMoney", async (req, res) => {
         if (!users || users.length === 0) {
             return res.status(404).json({ message: "ไม่พบผู้ใช้" });
         }
-
-
-
         // หักเงิน
         await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
             prize,
             uid,
         ]);
-
         // อัปเดตสถานะการชำระเงิน
         await conn.query(
             "UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?",
             [oid]
         );
-
         res.status(200).json({ message: "ขึ้นเงินสำเร็จ" });
     } catch (error) {
         console.error("เกิดข้อผิดพลาด:", error);
         res.status(500).json({ message: "เกิดข้อผิดพลาด" });
     }
 });
+
 
 
 router.post("/pay", async (req, res) => {
