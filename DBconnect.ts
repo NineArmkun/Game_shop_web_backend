@@ -1,7 +1,7 @@
 import mysql from "mysql2/promise";
 
 export const conn = mysql.createPool({
-  connectionLimit: 10,
+  connectionLimit: 20,
   host: "202.28.34.203",
   user: "mb68_66011212013",
   password: "xjY_1gE3I(!Y",
