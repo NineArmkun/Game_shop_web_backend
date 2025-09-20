@@ -91,7 +91,7 @@ router.post("/orders", async (req, res) => {
 
 
 router.post("/check_lotto", async (req, res) => {
-    const { oid, lotto_number, lid } = req.body;
+    const { uid, lotto_number, lid, oid } = req.body;
 
     try {
         const [check_lotto]: any = await conn.query(
