@@ -84,6 +84,8 @@ router.post("/orders", async (req, res) => {
         [data.lid]
 
 
+<<<<<<< HEAD
+=======
       );
     }
 
@@ -91,6 +93,7 @@ router.post("/orders", async (req, res) => {
       message: "Lotto entry added successfully!",
       lid: newLid,
     });
+>>>>>>> 7c250c230b85f8d73b9f379ebe8211c7a7aef16d
   } catch (err) {
     console.error("Error adding lotto entry:", err);
     return res.status(500).json({ error: "Internal Server Error" });
