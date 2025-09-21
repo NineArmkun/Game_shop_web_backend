@@ -78,22 +78,18 @@ router.post("/orders", async (req, res) => {
     const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
 
     const newLid = result.insertId;
-    if (res.statusCode == 201) {
+    
       await conn.query(
-        "UPDATE lotto SET sale_status = 1 WHERE lid = ?",
+        "UPDATE lotto SET sale_status = 0 WHERE lid = ?",
         [data.lid]
 
 
-<<<<<<< HEAD
-=======
       );
-    }
 
     return res.status(201).json({
       message: "Lotto entry added successfully!",
       lid: newLid,
     });
->>>>>>> 7c250c230b85f8d73b9f379ebe8211c7a7aef16d
   } catch (err) {
     console.error("Error adding lotto entry:", err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -101,7 +97,7 @@ router.post("/orders", async (req, res) => {
 });
 
 router.post("/check_lotto", async (req, res) => {
-  const { uid, lotto_number, lid } = req.body;
+  const { uid, lotto_number, lid, oid } = req.body;
 
   try {
     const [check_lotto]: any = await conn.query(
@@ -133,6 +129,10 @@ router.post("/check_lotto", async (req, res) => {
 
       });
     } else {
+      await conn.query(
+        "UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?",
+        [oid]
+      );
       return res.status(200).json({
         message: "ไม่ถูกรางวัล"
 
