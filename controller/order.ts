@@ -79,18 +79,7 @@ router.post("/orders", async (req, res) => {
     );
     console.log("Update result:", updateResult);
 
-    // const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
 
-    // const newLid = result.insertId;
-    //     await conn.query(
-    //   "UPDATE lotto SET sale_status = 0 WHERE lid = ?",
-    //   [data.lid]
-    //     );
-
-    // return res.status(201).json({
-    //   message: "Lotto entry added successfully!",
-    //   lid: newLid,
-    // });
   } catch (err) {
     console.error("Error adding lotto entry:", err);
     return res.status(500).json({ error: "Internal Server Error" });
