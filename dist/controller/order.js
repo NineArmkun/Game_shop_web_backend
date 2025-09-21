@@ -63,20 +63,21 @@ exports.router.post("/orders", async (req, res) => {
   INSERT INTO orders (lid, uid, \`date\`, payment_status)
   VALUES (?, ?, NOW(), ?)
 `;
-        const values = [
-            data.lid,
-            data.uid,
-            "pending"
-        ];
+        const values = [data.lid, data.uid, "pending"];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
-        const newLid = result.insertId;
-        if (res.statusCode == 201) {
-            await DBconnect_1.conn.query("UPDATE lotto SET sale_status = 1 WHERE lid = ?", [data.lid]);
-        }
-        return res.status(201).json({
-            message: "Lotto entry added successfully!",
-            lid: newLid,
-        });
+        console.log("Insert result:", result);
+        const [updateResult] = await DBconnect_1.conn.query("UPDATE lotto SET sale_status = 0 WHERE lid = ?", [data.lid]);
+        console.log("Update result:", updateResult);
+        // const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
+        // const newLid = result.insertId;
+        //     await conn.query(
+        //   "UPDATE lotto SET sale_status = 0 WHERE lid = ?",
+        //   [data.lid]
+        //     );
+        // return res.status(201).json({
+        //   message: "Lotto entry added successfully!",
+        //   lid: newLid,
+        // });
     }
     catch (err) {
         console.error("Error adding lotto entry:", err);
@@ -84,7 +85,7 @@ exports.router.post("/orders", async (req, res) => {
     }
 });
 exports.router.post("/check_lotto", async (req, res) => {
-    const { uid, lotto_number, lid, oid } = req.body;
+    const { uid, lotto_number, lid } = req.body;
     try {
         const [check_lotto] = await DBconnect_1.conn.query(`SELECT * 
    FROM orders 
@@ -105,13 +106,12 @@ exports.router.post("/check_lotto", async (req, res) => {
             return res.status(200).json({
                 message: "ถูกรางวัล!",
                 data: {
-                    "old": check_lotto[0].oid,
-                    "prize": check_lotto[0].prize
-                }
+                    old: check_lotto[0].oid,
+                    prize: check_lotto[0].prize,
+                },
             });
         }
         else {
-            await DBconnect_1.conn.query("UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?", [oid]);
             return res.status(200).json({
                 message: "ไม่ถูกรางวัล"
             });

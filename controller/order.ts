@@ -98,7 +98,7 @@ router.post("/orders", async (req, res) => {
 });
 
 router.post("/check_lotto", async (req, res) => {
-  const { uid, lotto_number, lid, oid } = req.body;
+  const { uid, lotto_number, lid } = req.body;
 
   try {
     const [check_lotto]: any = await conn.query(
@@ -130,11 +130,6 @@ router.post("/check_lotto", async (req, res) => {
 
       });
     } else {
-
-      await conn.query(
-        "UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?",
-        [oid]
-      );
       return res.status(200).json({
         message: "ไม่ถูกรางวัล"
 
@@ -179,7 +174,6 @@ router.post("/updateMoney", async (req, res) => {
     res.status(500).json({ message: "เกิดข้อผิดพลาด" });
   }
 });
-
 
 router.post("/pay", async (req, res) => {
   const { uid, oid, price } = req.body;
