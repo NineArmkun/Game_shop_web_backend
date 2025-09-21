@@ -63,28 +63,28 @@ router.post("/orders", async (req, res) => {
       }
     }
 
-       const insertQuery = `
+    const insertQuery = `
   INSERT INTO orders (lid, uid, \`date\`, payment_status)
   VALUES (?, ?, NOW(), ?)
 `;
 
-const values = [
-  data.lid,
-  data.uid,
-  "pending"
-];
+    const values = [
+      data.lid,
+      data.uid,
+      "pending"
+    ];
 
 
     const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
 
     const newLid = result.insertId;
     if (res.statusCode == 201) {
-        await conn.query(
-      "UPDATE lotto SET sale_status = 1 WHERE lid = ?",
-      [data.lid]
+      await conn.query(
+        "UPDATE lotto SET sale_status = 1 WHERE lid = ?",
+        [data.lid]
 
-      
-    );
+
+      );
     }
 
     return res.status(201).json({
@@ -98,7 +98,7 @@ const values = [
 });
 
 router.post("/check_lotto", async (req, res) => {
-    const { uid, lotto_number, lid } = req.body;
+  const { uid, lotto_number, lid, oid } = req.body;
 
   try {
     const [check_lotto]: any = await conn.query(
@@ -111,68 +111,73 @@ router.post("/check_lotto", async (req, res) => {
       [lid, lotto_number]
     );
 
-        if (check_lotto.length > 0 && lotto_number == check_lotto[0].winning_lotto_number) {
-            console.log(check_lotto);
-            // await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
-            //     check_lotto.price,
-            //     uid,
-            // ]);
-            // await conn.query(
-            //     "UPDATE orders SET payment_status = 'cencelled' WHERE oid = ?",
-            //     [check_lotto.oid]
-            // );
-            return res.status(200).json({
-                message: "ถูกรางวัล!",
-                data: {
-                    "old": check_lotto[0].oid,
-                    "prize": check_lotto[0].prize
-                }
-
-            });
-        } else {
-            return res.status(200).json({
-                message: "ไม่ถูกรางวัล"
-
-            });
+    if (check_lotto.length > 0 && lotto_number == check_lotto[0].winning_lotto_number) {
+      console.log(check_lotto);
+      // await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
+      //     check_lotto.price,
+      //     uid,
+      // ]);
+      // await conn.query(
+      //     "UPDATE orders SET payment_status = 'cencelled' WHERE oid = ?",
+      //     [check_lotto.oid]
+      // );
+      return res.status(200).json({
+        message: "ถูกรางวัล!",
+        data: {
+          "old": check_lotto[0].oid,
+          "prize": check_lotto[0].prize
         }
 
-    } catch (err) {
-        console.error("Error adding lotto entry:", err);
-        return res.status(500).json({ error: "Internal Server Error" });
+      });
+    } else {
+
+      await conn.query(
+        "UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?",
+        [oid]
+      );
+      return res.status(200).json({
+        message: "ไม่ถูกรางวัล"
+
+      });
     }
+
+  } catch (err) {
+    console.error("Error adding lotto entry:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 router.post("/updateMoney", async (req, res) => {
-    const { uid, oid, prize } = req.body;
+  const { uid, oid, prize } = req.body;
 
-    try {
-        const [users]: any = await conn.query(
-            "SELECT money FROM user WHERE uid = ?",
-            [uid]
-        );
+  try {
+    const [users]: any = await conn.query(
+      "SELECT money FROM user WHERE uid = ?",
+      [uid]
+    );
 
-        if (!users || users.length === 0) {
-            return res.status(404).json({ message: "ไม่พบผู้ใช้" });
-        }
-
-
-
-        // หักเงิน
-        await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
-            prize,
-            uid,
-        ]);
-
-        // อัปเดตสถานะการชำระเงิน
-        await conn.query(
-            "UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?",
-            [oid]
-        );
-
-        res.status(200).json({ message: "ขึ้นเงินสำเร็จ" });
-    } catch (error) {
-        console.error("เกิดข้อผิดพลาด:", error);
-        res.status(500).json({ message: "เกิดข้อผิดพลาด" });
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: "ไม่พบผู้ใช้" });
     }
+
+
+
+    // หักเงิน
+    await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
+      prize,
+      uid,
+    ]);
+
+    // อัปเดตสถานะการชำระเงิน
+    await conn.query(
+      "UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?",
+      [oid]
+    );
+
+    res.status(200).json({ message: "ขึ้นเงินสำเร็จ" });
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาด:", error);
+    res.status(500).json({ message: "เกิดข้อผิดพลาด" });
+  }
 });
 
 
