@@ -9,7 +9,7 @@ const express_1 = __importDefault(require("express"));
 exports.router = express_1.default.Router();
 //select all
 exports.router.get("/", async (req, res) => {
-    const [rows] = await DBconnect_1.conn.query("select * from lotto");
+    const [rows] = await DBconnect_1.conn.query("select * from lotto where sale_status = 1");
     res.send(rows);
 });
 //select ilid by lotto 

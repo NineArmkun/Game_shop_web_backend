@@ -51,26 +51,27 @@ exports.router.get("/:id/pending", async (req, res) => {
 exports.router.post("/orders", async (req, res) => {
     try {
         const data = req.body;
-        const requiredFields = ['lid', 'uid'];
+        const requiredFields = ["lid", "uid"];
         for (const field of requiredFields) {
             if (!(field in data)) {
-                return res.status(400).json({ error: `Missing required field: ${field}` });
+                return res
+                    .status(400)
+                    .json({ error: `Missing required field: ${field}` });
             }
         }
         const insertQuery = `
   INSERT INTO orders (lid, uid, \`date\`, payment_status)
   VALUES (?, ?, NOW(), ?)
 `;
-        const values = [
-            data.lid,
-            data.uid,
-            "pending"
-        ];
+        const values = [data.lid, data.uid, "pending"];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
         const newLid = result.insertId;
+        if (res.statusCode == 201) {
+            await DBconnect_1.conn.query("UPDATE lotto SET sale_status = 1 WHERE lid = ?", [data.lid]);
+        }
         return res.status(201).json({
             message: "Lotto entry added successfully!",
-            lid: newLid
+            lid: newLid,
         });
     }
     catch (err) {
@@ -87,7 +88,8 @@ exports.router.post("/check_lotto", async (req, res) => {
    JOIN winning_lotto ON winning_lotto.lid = orders.lid 
    JOIN lotto ON winning_lotto.lid = lotto.lid 
    WHERE lotto.lid = ? AND winning_lotto.winning_lotto_number = ?`, [lid, lotto_number]);
-        if (check_lotto.length > 0 && lotto_number == check_lotto[0].winning_lotto_number) {
+        if (check_lotto.length > 0 &&
+            lotto_number == check_lotto[0].winning_lotto_number) {
             console.log(check_lotto);
             // await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
             //     check_lotto.price,
@@ -100,14 +102,14 @@ exports.router.post("/check_lotto", async (req, res) => {
             return res.status(200).json({
                 message: "ถูกรางวัล!",
                 data: {
-                    "old": check_lotto[0].oid,
-                    "prize": check_lotto[0].prize
-                }
+                    old: check_lotto[0].oid,
+                    prize: check_lotto[0].prize,
+                },
             });
         }
         else {
             return res.status(200).json({
-                message: "ไม่ถูกรางวัล"
+                message: "ไม่ถูกรางวัล",
             });
         }
     }
