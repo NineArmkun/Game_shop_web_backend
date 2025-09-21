@@ -78,14 +78,13 @@ router.post("/orders", async (req, res) => {
     const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
 
     const newLid = result.insertId;
-    if (res.statusCode == 201) {
+    
       await conn.query(
-        "UPDATE lotto SET sale_status = 1 WHERE lid = ?",
+        "UPDATE lotto SET sale_status = 0 WHERE lid = ?",
         [data.lid]
 
 
       );
-    }
 
     return res.status(201).json({
       message: "Lotto entry added successfully!",
