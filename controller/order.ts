@@ -82,8 +82,6 @@ router.post("/orders", async (req, res) => {
       await conn.query(
         "UPDATE lotto SET sale_status = 1 WHERE lid = ?",
         [data.lid]
-
-
       );
     }
 
@@ -91,6 +89,7 @@ router.post("/orders", async (req, res) => {
       message: "Lotto entry added successfully!",
       lid: newLid,
     });
+
   } catch (err) {
     console.error("Error adding lotto entry:", err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -98,7 +97,7 @@ router.post("/orders", async (req, res) => {
 });
 
 router.post("/check_lotto", async (req, res) => {
-  const { uid, lotto_number, lid } = req.body;
+  const { uid, lotto_number, lid, oid } = req.body;
 
   try {
     const [check_lotto]: any = await conn.query(
@@ -130,6 +129,10 @@ router.post("/check_lotto", async (req, res) => {
 
       });
     } else {
+      await conn.query(
+        "UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?",
+        [oid]
+      );
       return res.status(200).json({
         message: "ไม่ถูกรางวัล"
 
