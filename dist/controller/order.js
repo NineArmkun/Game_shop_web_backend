@@ -70,9 +70,7 @@ exports.router.post("/orders", async (req, res) => {
         ];
         const [result] = await DBconnect_1.conn.query(insertQuery, values);
         const newLid = result.insertId;
-        if (res.statusCode == 201) {
-            await DBconnect_1.conn.query("UPDATE lotto SET sale_status = 1 WHERE lid = ?", [data.lid]);
-        }
+        await DBconnect_1.conn.query("UPDATE lotto SET sale_status = 0 WHERE lid = ?", [data.lid]);
         return res.status(201).json({
             message: "Lotto entry added successfully!",
             lid: newLid,
