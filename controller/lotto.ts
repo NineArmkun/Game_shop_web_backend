@@ -6,7 +6,7 @@ import { ResultSetHeader } from "mysql2/promise";
 export const router = express.Router();
 //select all
 router.get("/", async (req, res) => {
-    const [rows] = await conn.query("select * from lotto");
+    const [rows] = await conn.query("select * from lotto where sale_status = 1");
     res.send(rows);
 });
 //select ilid by lotto 
