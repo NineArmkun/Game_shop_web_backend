@@ -80,7 +80,7 @@ exports.router.post("/orders", async (req, res) => {
     }
 });
 exports.router.post("/check_lotto", async (req, res) => {
-    const { uid, lotto_number, lid } = req.body;
+    const { uid, lotto_number, lid, oid } = req.body;
     try {
         const [check_lotto] = await DBconnect_1.conn.query(`SELECT * 
    FROM orders 
@@ -102,12 +102,13 @@ exports.router.post("/check_lotto", async (req, res) => {
             return res.status(200).json({
                 message: "ถูกรางวัล!",
                 data: {
-                    old: check_lotto[0].oid,
-                    prize: check_lotto[0].prize,
-                },
+                    "old": check_lotto[0].oid,
+                    "prize": check_lotto[0].prize
+                }
             });
         }
         else {
+            await DBconnect_1.conn.query("UPDATE orders SET payment_status = 'cancelled' WHERE oid = ?", [oid]);
             return res.status(200).json({
                 message: "ไม่ถูกรางวัล",
             });
