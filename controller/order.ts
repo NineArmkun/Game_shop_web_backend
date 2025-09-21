@@ -68,18 +68,32 @@ router.post("/orders", async (req, res) => {
   VALUES (?, ?, NOW(), ?)
 `;
 
-    const values = [data.lid, data.uid, "pending"];
-    console.log("Inserting order for lid =", data.lid);
+    const values = [
+      data.lid,
+      data.uid,
+      "pending"
+    ];
+
+
     const [result] = await conn.query<ResultSetHeader>(insertQuery, values);
-    console.log("Insert result:", result);
 
-    const [updateResult] = await conn.query(
-      "UPDATE lotto SET sale_status = 0 WHERE lid = ?",
-      [data.lid]
-    );
-    console.log("Update result:", updateResult);
+    const newLid = result.insertId;
+    if (res.statusCode == 201) {
+      await conn.query(
+        "UPDATE lotto SET sale_status = 1 WHERE lid = ?",
+        [data.lid]
 
 
+<<<<<<< HEAD
+=======
+      );
+    }
+
+    return res.status(201).json({
+      message: "Lotto entry added successfully!",
+      lid: newLid,
+    });
+>>>>>>> 7c250c230b85f8d73b9f379ebe8211c7a7aef16d
   } catch (err) {
     console.error("Error adding lotto entry:", err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -100,10 +114,7 @@ router.post("/check_lotto", async (req, res) => {
       [lid, lotto_number]
     );
 
-    if (
-      check_lotto.length > 0 &&
-      lotto_number == check_lotto[0].winning_lotto_number
-    ) {
+    if (check_lotto.length > 0 && lotto_number == check_lotto[0].winning_lotto_number) {
       console.log(check_lotto);
       // await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
       //     check_lotto.price,
@@ -116,15 +127,18 @@ router.post("/check_lotto", async (req, res) => {
       return res.status(200).json({
         message: "ถูกรางวัล!",
         data: {
-          old: check_lotto[0].oid,
-          prize: check_lotto[0].prize,
-        },
+          "old": check_lotto[0].oid,
+          "prize": check_lotto[0].prize
+        }
+
       });
     } else {
       return res.status(200).json({
-        message: "ไม่ถูกรางวัล",
+        message: "ไม่ถูกรางวัล"
+
       });
     }
+
   } catch (err) {
     console.error("Error adding lotto entry:", err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -142,6 +156,8 @@ router.post("/updateMoney", async (req, res) => {
     if (!users || users.length === 0) {
       return res.status(404).json({ message: "ไม่พบผู้ใช้" });
     }
+
+
 
     // หักเงิน
     await conn.query("UPDATE user SET money = money + ? WHERE uid = ?", [
