@@ -16,6 +16,12 @@ router.post("/", async (req, res) => {
         password } = req.body;
     const hashpassword = await bcrypt.hash(password, 10);
 
+    const [rows] = await conn.query("SELECT * FROM user WHERE user_name = ?", [username]);
+    if ((rows as any[]).length > 0) {
+        return res.status(409).json({ message: "Username นี้ถูกใช้ไปแล้ว" }); // 409 Conflict
+
+    }
+
     try {
         const [result] = await conn.query<ResultSetHeader>(
             'insert into user(user_name,email,password,tel,money,role_id)values (?,?,?,?,?,?)', [username, email, hashpassword, phone, money, 2])
