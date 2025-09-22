@@ -77,6 +77,18 @@ router.post('/update/:id', async (req, res) => {
   }
 });
 
+router.delete("/delete_users", async (req, res) => {
+  try {
+    const [result] = await conn.query("DELETE FROM users");
+    return res.status(200).json({
+      message: "All records deleted from users table",
+    //   affectedRows: result.affectedRows,
+    });
+  } catch (err) {
+    console.error("Error deleting users table:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 
 
