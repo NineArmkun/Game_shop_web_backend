@@ -8,11 +8,15 @@ const DBconnect_1 = require("../DBconnect");
 const express_1 = __importDefault(require("express"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 exports.router = express_1.default.Router();
-exports.router.post("/register", async (req, res) => {
+exports.router.post("/", async (req, res) => {
     const { username, email, phone, money, password } = req.body;
     const hashpassword = await bcrypt_1.default.hash(password, 10);
+    const [rows] = await DBconnect_1.conn.query("SELECT * FROM user WHERE user_name = ?", [username]);
+    if (rows.length > 0) {
+        return res.status(409).json({ message: "Username นี้ถูกใช้ไปแล้ว" }); // 409 Conflict
+    }
     try {
-        const [result] = await DBconnect_1.conn.query('insert into user(user_name,email,password,tal,money,rold_id)values (?,?,?,?,?,?)', [username, email, hashpassword, phone, money, 2]);
+        const [result] = await DBconnect_1.conn.query('insert into user(user_name,email,password,tel,money,role_id)values (?,?,?,?,?,?)', [username, email, hashpassword, phone, money, 2]);
         return res.status(200).json({
             message: "ลงทะเบียนสำเร็จ",
             userId: result.insertId,
