@@ -7,6 +7,7 @@ import { router as index } from "./controller/index";
 import { router as user } from "./controller/user";
 import { router as lotto } from "./controller/lotto";
 import { router as order } from "./controller/order";
+import { router as register } from "./controller/register";
 
 export const app = express();
 
@@ -22,6 +23,7 @@ app.use("/", index);
 app.use("/login", login);
 app.use("/lotto", lotto)
 app.use("/order", order);
+app.use("/register", register);
 
 // app.use("/", (req, res) => {
 //   res.send("Hello World!!!");
