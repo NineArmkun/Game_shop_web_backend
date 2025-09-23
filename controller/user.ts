@@ -80,19 +80,15 @@ router.post('/update/:id', async (req, res) => {
 
 router.delete("/delete_users", async (req, res) => {
   try {
-    const { uid } = req.body;
+    const role_id = 1;
 
-    if (!uid) {
-      return res.status(400).json({ error: "Missing required field: uid" });
-    }
-
-    const [result] = await conn.query<ResultSetHeader>(
-      "DELETE FROM users WHERE uid <> ?",
-      [uid]
-    );
+const [result] = await conn.query<ResultSetHeader>(
+  "DELETE FROM user WHERE role_id NOT IN (?)",
+  [[role_id]] // wrap in array if you want multiple values
+);
 
     return res.status(200).json({
-      message: `Deleted all users except uid = ${uid}`,
+      message: `Deleted all users except role_id = ${role_id}`,
       affectedRows: result.affectedRows,
     });
   } catch (err) {
