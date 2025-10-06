@@ -106,6 +106,19 @@ router.post("/add_winning_lotto", async (req, res) => {
     }
 });
 
+router.delete("/delete_lotto", async (req, res) => {
+  try {
+    const [result] = await conn.query("DELETE FROM lotto");
+    return res.status(200).json({
+      message: "All records deleted from lotto table",
+    //   affectedRows: result.affectedRows,
+    });
+  } catch (err) {
+    console.error("Error deleting lotto table:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 
 
 

@@ -8,6 +8,7 @@ import { router as user } from "./controller/user";
 import { router as lotto } from "./controller/lotto";
 import { router as order } from "./controller/order";
 import { router as register } from "./controller/register";
+import path from "path";
 
 export const app = express();
 
@@ -17,7 +18,9 @@ export const app = express();
 // app.use(bodyParser.text);
 
 app.use(cor());
+app.use(express.json());
 app.use(bodyParser.json());
+app.use('/user_pictures', express.static(path.join(__dirname, 'Picture_Storage', 'UserPicture')));
 app.use("/user", user);
 app.use("/", index);
 app.use("/login", login);
