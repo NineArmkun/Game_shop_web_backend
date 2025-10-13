@@ -97,6 +97,47 @@ router.post('/update', async (req, res) => {
     }
 });
 
+router.post('/topup', async (req, res) => {
+    const {
+        user_id,
+        money
+    } = req.body
+    const money_add = parseInt(money);
+
+    try {
+        // const money_left = await conn.query("select wallet from Users where user_id = ?", [user_id])
+        // const money_from_database = money_left
+        // const money_sum = money_from_database + money_add;
+
+        const response = await conn.query("update Users set wallet = wallet + ? where user_id = ?", [money_add, user_id]);
+        res.status(200).json({
+            "message": "Top up conplete!!",
+            "return": response
+        })
+
+    }catch (err){
+        return err
+    }
+})
+
+router.get("/getTransaction", async (req, res) => {
+    try {
+        const [transac] = await conn.query("select * from GameCart");
+        res.send(transac);
+        
+    } catch (err) {
+        console.log(err);
+        
+    }
+
+})
+
+
+// router.get("/", async (req, res) => {
+//     const [row] = await conn.query("select * from GamesList");
+//     res.send(row);
+// })
+
 // router.get("/:id", async (req, res) => {
 //   try {
 //     let uid = req.params.id;
