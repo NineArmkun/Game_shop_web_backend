@@ -3,6 +3,9 @@ import express from "express";
 import multer from "multer";
 import { ResultSetHeader } from "mysql2/promise";
 import fs from 'fs';
+import { log } from "console";
+import { json } from "body-parser";
+import { RowDataPacket } from 'mysql2';
 
 
 export const router = express.Router();
@@ -51,18 +54,18 @@ router.post('/update_pic', userupload.single('profile_picture'), async (req, res
             "UPDATE Users SET username = ?, email = ?, user_profile = ? WHERE user_id = ?",
             [new_user_name, new_email, fullpath, user_id]
         );
-    try {
-        const user_profile = await conn.query("SELECT user_profile FROM Users WHERE user_id = ?", [user_id]);
-        const delete_previous_image = pic_path+user_profile;
-        fs.unlink(delete_previous_image, (unlinkErr) => {
-            if(unlinkErr) {
-                console.error("Error deleting orphaned file:", unlinkErr);
-            }
-            console.log('File deleted successfully:', delete_previous_image);
-        })
-    } catch (err) {
-        console.error("❌ can't delete user previous image:", err);
-    }
+        try {
+            const user_profile = await conn.query("SELECT user_profile FROM Users WHERE user_id = ?", [user_id]);
+            const delete_previous_image = pic_path + user_profile;
+            fs.unlink(delete_previous_image, (unlinkErr) => {
+                if (unlinkErr) {
+                    console.error("Error deleting orphaned file:", unlinkErr);
+                }
+                console.log('File deleted successfully:', delete_previous_image);
+            })
+        } catch (err) {
+            console.error("❌ can't delete user previous image:", err);
+        }
         res.status(200).json({ message: 'อัปเดตสำเร็จ' });
     } catch (err) {
         console.error(err);
@@ -84,7 +87,7 @@ router.post('/update_pic', userupload.single('profile_picture'), async (req, res
 
 router.post('/update', async (req, res) => {
     //   let uid = req.params.id;
-    const {new_email, new_user_name,  user_id } = req.body;
+    const { new_email, new_user_name, user_id } = req.body;
     try {
         await conn.query(
             "UPDATE Users SET username = ?, email = ? WHERE user_id = ?",
@@ -110,25 +113,127 @@ router.post('/topup', async (req, res) => {
         // const money_sum = money_from_database + money_add;
 
         const response = await conn.query("update Users set wallet = wallet + ? where user_id = ?", [money_add, user_id]);
+        const [insertHistory] = await conn.query<ResultSetHeader>(
+            "INSERT INTO HistoryTransaction (user_id, total_price, transaction_type) VALUES (?, ?, ?)",
+            [user_id, money, 2]
+        );
         res.status(200).json({
             "message": "Top up conplete!!",
             "return": response
         })
 
-    }catch (err){
+    } catch (err) {
         return err
     }
 })
 
-router.get("/getTransaction", async (req, res) => {
+router.post("/self_Transection", async (req, res) => {
+    const {
+        user_id
+    } = req.body
+    // if (!user_id) {console.log("user id null")}
+    // return res.status(200).json({
+    //     "message": "user_id_null"
+    // })
     try {
-        const [transac] = await conn.query("select * from GameCart");
-        res.send(transac);
-        
+        const [transac] = await conn.query("select Users.username,date , total_price, transaction_type from Users, HistoryTransaction where Users.user_id = HistoryTransaction.user_id and Users.user_id = ?", [user_id]);
+        return res.send(transac);
+
     } catch (err) {
         console.log(err);
-        
     }
+
+})
+
+// router.post("/add_coupon", async (req, res) => {
+//     const {
+
+//     } = req.body
+// })
+
+router.post("/insert_coupon", async (req, res) => {
+    const { coupon_code, discount_percen, coupontype, amount } = req.body;
+
+    if (!coupon_code || !discount_percen || coupontype === undefined) {
+        return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    try {
+        const [result] = await conn.query(
+            `
+      INSERT INTO DiscountCoupon (discount_coupon_code, discount_percent, discount_type, amount)
+      VALUES (?, ?, ?, ?)
+      `,
+            [coupon_code, discount_percen, coupontype, amount || null]
+        );
+
+        res.status(200).json({
+            message: "Coupon inserted successfully",
+            insertId: (result as any).insertId,
+        });
+    } catch (err) {
+        console.error("❌ Error inserting coupon:", err);
+        res.status(500).json({ message: "Error inserting coupon", error: err });
+    }
+});
+
+
+router.get("/get_coupon", async (req, res) => {
+    try {
+        const [couponlist] = await conn.query("SELECT * from DiscountCoupon");
+        res.send(couponlist)
+
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+router.post("/coupon_delete", async (req, res) => {
+    const {
+        code
+    } = req.body
+    try {
+        const delete_data = await conn.query("delete from DiscountCoupon where discount_coupon_code = ?", [code]);
+        res.send(delete_data)
+
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+router.post("/found_coupon", async (req, res) => {
+    const {
+        code
+    } = req.body
+
+    try {
+        const [res_coupon]: any = await conn.query<RowDataPacket[]>("select * from DiscountCoupon where discount_coupon_code = ?", [code]);
+
+        const result = res_coupon[0]
+
+        if (!result) {
+            return res.status(200).json({
+                coupon_found: false,
+                coupon_data: res_coupon
+            })
+        } else {
+            return res.status(200).json({
+                coupon_found: true,
+                coupon_data: res_coupon
+            })
+        }
+
+    } catch (err) {
+        console.log(err)
+        return res.status(200).json({
+            coupon_found: false
+        })
+    }
+
+})
+
+router.post("/used_coupon", async (req, res) => {
+
 
 })
 
